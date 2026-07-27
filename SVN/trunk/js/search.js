@@ -1,190 +1,200 @@
 jQuery(document).ready(function ($) {
-	var $input = $('#plusmagi-site-search-input');
-	var $results = $('#plusmagi-site-search-results');
-	var timer;
-	var activeTab = 'posts'; // Default tab
+	var minChars = parseInt(plusmagiSiteSearch.minChars, 10) || 3;
 
-	// 1. Move results to body so z-index / overflow:hidden in parent themes
-	//	cannot clip the dropdown.
-	if ($results.length > 0 && !$results.parent().is('body')) {
-		$('body').append($results);
-	}
+	$('.plusmagi-site-search-wrapper').each(function (index) {
+		var $wrapper = $(this);
+		var $input = $wrapper.find('.plusmagi-site-search-input').first();
+		var $results = $wrapper.find('.plusmagi-site-search-results').first();
+		var timer;
+		var activeTab = 'posts';
 
-	// 2. Position dropdown beneath the input.
-	//	Uses position:fixed + getBoundingClientRect() so the coordinates are
-	//	relative to the viePMort and never need updating on scroll.
-	//	This avoids the Firefox "scroll-linked positioning effect" warning
-	//	caused by reading layout information inside a scroll event handler.
-	   function repositionDropdown() {
-		   if (!$input.is(':visible')) return;
-		   var rect = $input[0].getBoundingClientRect();
+		if (!$input.length || !$results.length) {
+			return;
+		}
 
-		   $results.css({
-			   'top': (rect.bottom + 4) + 'px',
-			   'left': rect.left + 'px',
-			   'width': rect.width + 'px',
-			   'position': 'fixed',
-			   'z-index': 999999
-		   });
-	   }
+		var widgetId = $wrapper.attr('data-plusmagi-search-id');
+		if (!widgetId) {
+			widgetId = 'plusmagi-search-' + index + '-' + Date.now();
+			$wrapper.attr('data-plusmagi-search-id', widgetId);
+		}
+		$results.attr('data-plusmagi-search-owner', widgetId);
 
-	// Reposition on resize and scroll so the dropdown tracks the input.
-	$(window).on('resize scroll', function () {
-		if ($results.is(':visible')) repositionDropdown();
-	});
+		if ($results.length > 0 && !$results.parent().is('body')) {
+			$('body').append($results);
+		}
 
-	// 3. Build a safe anchor element for a single result item.
-	//	All dynamic content is set via .text() / .attr() to prevent XSS.
-	function buildItem(item, mode) {
-		var $li = $('<li>');
-		var $a = $('<a>').attr('href', item.link);
-		var $icon = $('<div>').addClass('plusmagi-site-search-item-icon');
-
-		if (item.thumbnail) {
-			$('<img>')
-				.addClass('plusmagi-site-search-item-thumb')
-				.attr('src', item.thumbnail)
-				.attr('alt', '')
-				.appendTo($icon);
-		} else {
-			var iconClass = 'dashicons-admin-post';
-			if (mode === 'term') {
-				iconClass = (item.original_type === 'category') ? 'dashicons-category' : 'dashicons-tag';
-			} else if (item.original_type === 'page') {
-				iconClass = 'dashicons-admin-page';
+		function repositionDropdown() {
+			if (!$input.is(':visible')) {
+				return;
 			}
-			$('<span>')
-				.addClass('dashicons ' + iconClass)
-				.css({ 'font-size': '20px', 'width': '20px', 'height': '20px', 'line-height': '20px' })
-				.appendTo($icon);
+
+			var rect = $input[0].getBoundingClientRect();
+			var width = rect.width;
+			var left = rect.left;
+			var viewportWidth = $(window).width();
+
+			if (left + width > viewportWidth - 8) {
+				left = Math.max(8, viewportWidth - width - 8);
+			}
+
+			$results.css({
+				'top': (rect.bottom + 4) + 'px',
+				'left': left + 'px',
+				'width': width + 'px',
+				'position': 'fixed',
+				'z-index': 999999
+			});
 		}
 
-		var $details = $('<div>').addClass('plusmagi-site-search-item-details');
-		var $title = $('<span>').addClass('plusmagi-site-search-item-title').text(item.title);
-
-		// Append status pill for non-published posts (text only, no raw HTML)
-		if (mode !== 'term' && item.status && item.status !== 'publish') {
-			$('<span>').addClass('plusmagi-site-search-status-pill').text(item.status).appendTo($title);
-		}
-
-		$details.append($title);
-
-		if (mode === 'post') {
-			$('<span>').addClass('plusmagi-site-search-item-info').text(item.date).appendTo($details);
-		}
-
-		$a.append($icon).append($details);
-		$li.append($a);
-		return $li;
-	}
-
-	// 4. Render a list of items into a <ul>
-	function renderList(items, mode) {
-		if (items.length === 0) {
-			return $('<div>').addClass('plusmagi-site-search-no-results').text('No results found.');
-		}
-		var $ul = $('<ul>');
-		$.each(items, function (i, item) {
-			$ul.append(buildItem(item, mode));
+		$(window).on('resize scroll', function () {
+			if ($results.is(':visible')) {
+				repositionDropdown();
+			}
 		});
-		return $ul;
-	}
 
-	// 5. Render the full tab UI and inject it into the results container
-	function renderTabs(buckets) {
-		$results.empty();
+		function buildItem(item, mode) {
+			var $li = $('<li>');
+			var $a = $('<a>').attr('href', item.link);
+			var $icon = $('<div>').addClass('plusmagi-site-search-item-icon');
 
-		// Tab headers
-		var $tabs = $('<div>').addClass('plusmagi-site-search-tabs');
-		$('<div>').addClass('plusmagi-site-search-tab').attr('data-tab', 'posts').text('Posts (' + buckets.posts.length + ')').appendTo($tabs);
-		$('<div>').addClass('plusmagi-site-search-tab').attr('data-tab', 'categories').text('Category (' + buckets.categories.length + ')').appendTo($tabs);
-		$('<div>').addClass('plusmagi-site-search-tab').attr('data-tab', 'tags').text('Tag (' + buckets.tags.length + ')').appendTo($tabs);
+			if (item.thumbnail) {
+				$('<img>')
+					.addClass('plusmagi-site-search-item-thumb')
+					.attr('src', item.thumbnail)
+					.attr('alt', '')
+					.appendTo($icon);
+			} else {
+				var iconClass = 'dashicons-admin-post';
+				if (mode === 'term') {
+					iconClass = (item.original_type === 'category') ? 'dashicons-category' : 'dashicons-tag';
+				} else if (item.original_type === 'page') {
+					iconClass = 'dashicons-admin-page';
+				}
 
-		// Tab panels
-		var $panelPosts = $('<div>').addClass('plusmagi-site-search-tab-content').attr('id', 'tab-content-posts').hide().append(renderList(buckets.posts, 'post'));
-		var $panelCats = $('<div>').addClass('plusmagi-site-search-tab-content').attr('id', 'tab-content-categories').hide().append(renderList(buckets.categories, 'term'));
-		var $panelTags = $('<div>').addClass('plusmagi-site-search-tab-content').attr('id', 'tab-content-tags').hide().append(renderList(buckets.tags, 'term'));
+				$('<span>')
+					.addClass('dashicons ' + iconClass)
+					.css({ 'font-size': '20px', 'width': '20px', 'height': '20px', 'line-height': '20px' })
+					.appendTo($icon);
+			}
 
-		$results.append($tabs).append($panelPosts).append($panelCats).append($panelTags).show();
+			var $details = $('<div>').addClass('plusmagi-site-search-item-details');
+			var $title = $('<span>').addClass('plusmagi-site-search-item-title').text(item.title);
 
-		switchTab(activeTab);
-	}
+			if (mode !== 'term' && item.status && item.status !== 'publish') {
+				$('<span>').addClass('plusmagi-site-search-status-pill').text(item.status).appendTo($title);
+			}
 
-	function switchTab(tabName) {
-		activeTab = tabName;
-		$results.find('.plusmagi-site-search-tab').removeClass('active');
-		$results.find('.plusmagi-site-search-tab[data-tab="' + tabName + '"]').addClass('active');
+			$details.append($title);
 
-		$results.find('.plusmagi-site-search-tab-content').hide();
-		$results.find('#tab-content-' + tabName).show();
-		repositionDropdown();
-	}
+			if (mode === 'post') {
+				$('<span>').addClass('plusmagi-site-search-item-info').text(item.date).appendTo($details);
+			}
 
-	// 6. Event delegation for tab clicks
-	$results.on('mousedown', '.plusmagi-site-search-tab', function (e) {
-		e.preventDefault(); // Prevent input blur before the click registers
-		switchTab($(this).data('tab'));
-	});
+			$a.append($icon).append($details);
+			$li.append($a);
 
-	$input.on('focus', function () {
-		if ($(this).val().length >= 2 && $results.children().length > 0) {
-			$results.show();
+			return $li;
+		}
+
+		function renderList(items, mode) {
+			if (items.length === 0) {
+				return $('<div>').addClass('plusmagi-site-search-no-results').text('No results found.');
+			}
+
+			var $ul = $('<ul>');
+			$.each(items, function (i, item) {
+				$ul.append(buildItem(item, mode));
+			});
+
+			return $ul;
+		}
+
+		function renderTabs(buckets) {
+			$results.empty();
+
+			var $tabs = $('<div>').addClass('plusmagi-site-search-tabs');
+			$('<div>').addClass('plusmagi-site-search-tab').attr('data-tab', 'posts').text('Posts (' + buckets.posts.length + ')').appendTo($tabs);
+			$('<div>').addClass('plusmagi-site-search-tab').attr('data-tab', 'categories').text('Category (' + buckets.categories.length + ')').appendTo($tabs);
+			$('<div>').addClass('plusmagi-site-search-tab').attr('data-tab', 'tags').text('Tag (' + buckets.tags.length + ')').appendTo($tabs);
+
+			var $panelPosts = $('<div>').addClass('plusmagi-site-search-tab-content').attr('data-tab-content', 'posts').hide().append(renderList(buckets.posts, 'post'));
+			var $panelCats = $('<div>').addClass('plusmagi-site-search-tab-content').attr('data-tab-content', 'categories').hide().append(renderList(buckets.categories, 'term'));
+			var $panelTags = $('<div>').addClass('plusmagi-site-search-tab-content').attr('data-tab-content', 'tags').hide().append(renderList(buckets.tags, 'term'));
+
+			$results.append($tabs).append($panelPosts).append($panelCats).append($panelTags).show();
+			switchTab(activeTab);
+		}
+
+		function switchTab(tabName) {
+			activeTab = tabName;
+			$results.find('.plusmagi-site-search-tab').removeClass('active');
+			$results.find('.plusmagi-site-search-tab[data-tab="' + tabName + '"]').addClass('active');
+
+			$results.find('.plusmagi-site-search-tab-content').hide();
+			$results.find('.plusmagi-site-search-tab-content[data-tab-content="' + tabName + '"]').show();
 			repositionDropdown();
 		}
+
+		$results.on('mousedown', '.plusmagi-site-search-tab', function (e) {
+			e.preventDefault();
+			switchTab($(this).data('tab'));
+		});
+
+		$input.on('focus', function () {
+			if ($(this).val().trim().length >= minChars && $results.children().length > 0) {
+				$results.show();
+				repositionDropdown();
+			}
+		});
+
+		$input.on('input', function () {
+			var term = $(this).val().trim();
+			clearTimeout(timer);
+
+			if (term.length < minChars) {
+				$results.hide().empty();
+				return;
+			}
+
+			repositionDropdown();
+
+			timer = setTimeout(function () {
+				$.ajax({
+					url: plusmagiSiteSearch.root + 'plusmagi-site-search/v1/search',
+					method: 'GET',
+					data: { term: term },
+					beforeSend: function (xhr) {
+						xhr.setRequestHeader('X-WP-Nonce', plusmagiSiteSearch.nonce);
+					},
+					success: function (response) {
+						var buckets = { posts: [], categories: [], tags: [] };
+
+						$.each(response, function (i, item) {
+							if (item.type === 'post') {
+								buckets.posts.push(item);
+							} else if (item.original_type === 'category') {
+								buckets.categories.push(item);
+							} else if (item.original_type === 'post_tag') {
+								buckets.tags.push(item);
+							}
+						});
+
+						renderTabs(buckets);
+					},
+					error: function () {
+						$results.empty()
+							.append($('<div>').addClass('plusmagi-site-search-error').text('Error retrieving results.'))
+							.show();
+						repositionDropdown();
+					}
+				});
+			}, 300);
+		});
+
+		$(document).on('click', function (e) {
+			if (!$(e.target).closest($wrapper).length && !$(e.target).closest($results).length) {
+				$results.hide();
+			}
+		});
 	});
-
-	// 7. Main search handler
-	   $input.on('input', function () {
-		   var term = $(this).val();
-		   clearTimeout(timer);
-
-		   if (term.length < 2) {
-			   $results.hide().empty();
-			   return;
-		   }
-
-		   repositionDropdown();
-
-		   timer = setTimeout(function () {
-			   $.ajax({
-				url: plusmagiSiteSearch.root + 'plusmagi-site-search/v1/search',
-				   method: 'GET',
-				   data: { term: term },
-				   beforeSend: function (xhr) {
-					   xhr.setRequestHeader('X-PM-Nonce', plusmagiSiteSearch.nonce);
-				   },
-				   success: function (response) {
-					   var buckets = { posts: [], categories: [], tags: [] };
-
-					   $.each(response, function (i, item) {
-						   if (item.type === 'post') {
-							   buckets.posts.push(item);
-						   } else if (item.original_type === 'category') {
-							   buckets.categories.push(item);
-						   } else if (item.original_type === 'post_tag') {
-							   buckets.tags.push(item);
-						   }
-					   });
-
-					   renderTabs(buckets);
-				   },
-				   error: function () {
-					   $results.empty()
-						   .append($('<div>').addClass('plusmagi-site-search-error').text('Error retrieving results.'))
-						   .show();
-					   repositionDropdown();
-				   }
-			   });
-		   }, 300);
-	   });
-
-	// 8. Close dropdown when clicking outside the widget
-	   $(document).on('click', function (e) {
-		   if (
-			!$(e.target).closest('#plusmagi-site-search-input').length &&
-			!$(e.target).closest('#plusmagi-site-search-results').length
-		   ) {
-			   $results.hide();
-		   }
-	   });
 });
