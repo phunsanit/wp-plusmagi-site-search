@@ -91,8 +91,10 @@ npm run test:ui
 Use the shortcode anywhere on your site:
 
 ```
-[plusmagi_search]
+[plusmagi-site-search]
 ```
+
+Legacy shortcode `[plusmagi_search]` is also supported for backward compatibility.
 
 ## Security & User Roles
 

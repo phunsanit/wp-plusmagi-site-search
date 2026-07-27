@@ -34,7 +34,7 @@ If you need a custom search plugin that goes beyond native WordPress search, Plu
 *   **Organized Search Results**: Results are grouped into Posts, Category, and Tag tabs.
 *   **Visual Enhancements**: Shows featured images (thumbnails) in the search dropdown.
 *   **Advanced Search Filters**: Use prefixes like `post:`, `tag:`, or `category:`.
-*   **Developer Friendly**: Supports shortcode `[plusmagi-site-search]` and Block Editor.
+*   **Developer Friendly**: Supports shortcode `[plusmagi-site-search]` (legacy `[plusmagi_search]` also supported) and Block Editor.
 *   **High Performance**: Optimized with lightweight Ajax calls.
 *   **WordPress 7.0 Ready**: Fully tested and optimized for WordPress 7.0 and PHP 7.4+.
 

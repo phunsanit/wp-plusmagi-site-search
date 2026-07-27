@@ -1,11 +1,11 @@
 /* Main Wrapper */
-#plusmagi-site-search-wrapper {
+.plusmagi-site-search-wrapper {
 	position: relative;
 	width: 100%;
 }
 
 /* Input Styles */
-#plusmagi-site-search-input {
+.plusmagi-site-search-input {
 	width: 100%;
 	padding: 10px 12px;
 	border: 1px solid #ccc;
@@ -18,14 +18,14 @@
 	color: #333;
 }
 
-#plusmagi-site-search-input:focus {
+.plusmagi-site-search-input:focus {
 	border-color: #2271b1;
 	box-shadow: 0 0 0 1px #2271b1;
 	outline: none;
 }
 
 /* Results Dropdown */
-#plusmagi-site-search-results {
+.plusmagi-site-search-results {
 	display: none;
 	margin-top: 4px;
 
@@ -43,9 +43,9 @@
 }
 
 /* Ensure children inherit transparency or theme color */
-#plusmagi-site-search-results ul,
-#plusmagi-site-search-results li,
-#plusmagi-site-search-results div {
+.plusmagi-site-search-results ul,
+.plusmagi-site-search-results li,
+.plusmagi-site-search-results div {
 	background-color: inherit;
 	color: inherit;
 	opacity: 1;
@@ -58,7 +58,7 @@
 	background: #f1f1f1;
 }
 
- .plusmagi-tab {
+.plusmagi-site-search-tab {
 	flex: 1;
 	padding: 10px;
 	text-align: center;
@@ -70,15 +70,15 @@
 	transition: background 0.2s;
 }
 
- .plusmagi-tab:last-child {
+.plusmagi-site-search-tab:last-child {
 	border-right: none;
 }
 
- .plusmagi-tab:hover {
+.plusmagi-site-search-tab:hover {
 	background: #e9e9e9;
 }
 
- .plusmagi-tab.active {
+.plusmagi-site-search-tab.active {
 	background: #fff;
 	border-bottom: 1px solid #fff;
 	margin-bottom: -1px;
@@ -87,22 +87,22 @@
 }
 
 /* Tab Content */
-.wp-tab-content {
+.plusmagi-site-search-tab-content {
 	padding: 0;
 	/* max-height is handled by the parent container usually */
 }
 
-.wp-tab-content ul {
+.plusmagi-site-search-tab-content ul {
 	margin: 0;
 	padding: 0;
 	list-style: none;
 }
 
-.wp-tab-content li {
+.plusmagi-site-search-tab-content li {
 	border-bottom: 1px solid #f0f0f0;
 }
 
-.wp-tab-content a {
+.plusmagi-site-search-tab-content a {
 	display: flex;
 	align-items: center;
 	padding: 10px 12px;
@@ -111,12 +111,12 @@
 	transition: background-color 0.1s ease;
 }
 
-.wp-tab-content a:hover {
+.plusmagi-site-search-tab-content a:hover {
 	background: #f9f9f9;
 }
 
 /* Icons & Details */
-.wp-item-icon {
+.plusmagi-site-search-item-icon {
 	margin-right: 12px;
 	color: #8c8f94;
 	display: flex;
@@ -125,7 +125,7 @@
 	min-width: 24px;
 }
 
-.wp-item-thumb {
+.plusmagi-site-search-item-thumb {
 	width: 32px;
 	height: 32px;
 	object-fit: cover;
@@ -133,20 +133,20 @@
 	border: 1px solid #ddd;
 }
 
-.wp-item-details {
+.plusmagi-site-search-item-details {
 	display: flex;
 	flex-direction: column;
 	flex: 1;
 }
 
-.wp-item-title {
+.plusmagi-site-search-item-title {
 	font-weight: 500;
 	font-size: 14px;
 	line-height: 1.4;
 	color: #1d2327;
 }
 
-.wp-item-info {
+.plusmagi-site-search-item-info {
 	font-size: 12px;
 	color: #646970;
 	margin-top: 2px;
@@ -166,8 +166,8 @@
 	vertical-align: middle;
 }
 
-.no-results,
-.error {
+.plusmagi-site-search-no-results,
+.plusmagi-site-search-error {
 	padding: 16px;
 	text-align: center;
 	color: #646970;

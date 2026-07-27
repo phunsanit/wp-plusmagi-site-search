@@ -34,6 +34,14 @@ class Plusmagi_Site_Search
 	 */
 	private $search_term = null;
 
+	/**
+	 * Default meta keys included in meta_value search.
+	 * Can be customized via the plusmagi_site_search_meta_keys filter.
+	 *
+	 * @var string[]
+	 */
+	private $default_searchable_meta_keys = ['_sku', 'custom_summary'];
+
 	public static function get_instance()
 	{
 		if (self::$instance === null) {
@@ -46,11 +54,9 @@ class Plusmagi_Site_Search
 	{
 		add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']);
 		add_shortcode('plusmagi_search', [$this, 'render_shortcode']);
+		add_shortcode('plusmagi-site-search', [$this, 'render_shortcode']);
 		add_action('rest_api_init', [$this, 'register_rest_routes']);
 		add_action('init', [$this, 'register_blocks']);
-
-		// Admin Menu
-		add_action('admin_menu', [$this, 'add_admin_menu']);
 	}
 
 	   public function register_blocks()
@@ -67,40 +73,6 @@ class Plusmagi_Site_Search
 			   'editor_script'   => 'plusmagi-site-search-block-js',
 			   'render_callback' => [$this, 'render_shortcode']
 		   ]);
-	   }
-
-	   public function add_admin_menu()
-	   {
-		   add_menu_page(
-			   'PlusMagi Site Search',
-			   'PlusMagi Site Search',
-			   'manage_options',
-			   'plusmagi-site-search',
-			   [$this, 'render_admin_page'],
-			   'dashicons-search',
-			   100
-		   );
-	   }
-
-	   public function render_admin_page()
-	   {
-		   ?>
-		   <div class="wrap">
-			   <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
-			   <p><?php esc_html_e('Thank you for using PlusMagi Site Search! This plugin provides a frontend search experience similar to the WordPress admin search, with role-based access control.', 'plusmagi-site-search'); ?></p>
-
-			   <div class="card">
-				   <h2><?php esc_html_e('About the Developer', 'plusmagi-site-search'); ?></h2>
-				   <p>
-					   <?php esc_html_e('For support, updates, and more information, please visit our website:', 'plusmagi-site-search'); ?>
-					   <br>
-					   <a href="https://plusmagi-site-search.plusmagi.com" target="_blank" rel="noopener noreferrer">
-						   <strong><?php esc_html_e('Visit plusmagi-site-search.plusmagi.com →', 'plusmagi-site-search'); ?></strong>
-					   </a>
-				   </p>
-			   </div>
-		   </div>
-		   <?php
 	   }
 
 	/**
@@ -132,6 +104,7 @@ class Plusmagi_Site_Search
 		   wp_localize_script('plusmagi-site-search-js', 'plusmagiSiteSearch', [
 			   'root'  => esc_url_raw(rest_url()),
 			   'nonce' => wp_create_nonce('wp_rest'),
+			   'minChars' => 3,
 		   ]);
 	   }
 
@@ -139,9 +112,9 @@ class Plusmagi_Site_Search
 	   {
 		   ob_start();
 		   ?>
-		   <div id="plusmagi-site-search-wrapper">
-			   <input type="text" id="plusmagi-site-search-input" placeholder="<?php esc_attr_e('Search...', 'plusmagi-site-search'); ?>" autocomplete="off">
-			   <div id="plusmagi-site-search-results"></div>
+		   <div class="plusmagi-site-search-wrapper">
+			   <input type="text" class="plusmagi-site-search-input" placeholder="<?php esc_attr_e('Search...', 'plusmagi-site-search'); ?>" autocomplete="off">
+			   <div class="plusmagi-site-search-results"></div>
 		   </div>
 		   <?php
 		   return ob_get_clean();
@@ -170,12 +143,53 @@ class Plusmagi_Site_Search
 					   'type'            => 'string',
 					   'sanitize_callback' => 'sanitize_text_field',
 					   'validate_callback' => function ($value) {
-						   return is_string($value) && strlen(trim($value)) >= 2;
+						   return is_string($value) && strlen(trim($value)) >= 3;
 					   },
 				   ],
 			   ],
 		   ]);
 	   }
+
+	/**
+	 * Return sanitized, unique meta keys allowed in meta search.
+	 *
+	 * @return string[]
+	 */
+	private function get_searchable_meta_keys()
+	{
+		$meta_keys = apply_filters('plusmagi_site_search_meta_keys', $this->default_searchable_meta_keys);
+
+		if (!is_array($meta_keys)) {
+			return $this->default_searchable_meta_keys;
+		}
+
+		$meta_keys = array_map('sanitize_key', $meta_keys);
+		$meta_keys = array_filter($meta_keys, static function ($meta_key) {
+			return $meta_key !== '';
+		});
+
+		return array_values(array_unique($meta_keys));
+	}
+
+	/**
+	 * Build a SQL snippet to constrain search to whitelisted meta keys.
+	 *
+	 * @return string
+	 */
+	private function build_meta_key_sql_condition()
+	{
+		global $wpdb;
+
+		$meta_keys = $this->get_searchable_meta_keys();
+		if (empty($meta_keys)) {
+			return '';
+		}
+
+		$placeholders = implode(', ', array_fill(0, count($meta_keys), '%s'));
+		$prepared_values = $wpdb->prepare($placeholders, ...$meta_keys);
+
+		return " AND ({$wpdb->postmeta}.meta_key IN ({$prepared_values}))";
+	}
 
 	/**
 	 * Decode HTML entities in result text so frontend shows readable characters.
@@ -337,7 +351,8 @@ class Plusmagi_Site_Search
 		// is_search() returns false inside a REST request, so we use this
 		// property as the guard instead.
 		if (!empty($this->search_term)) {
-			$join .= " LEFT JOIN {$wpdb->postmeta} ON ({$wpdb->posts}.ID = {$wpdb->postmeta}.post_id) ";
+			$meta_key_condition = $this->build_meta_key_sql_condition();
+			$join .= " LEFT JOIN {$wpdb->postmeta} ON ({$wpdb->posts}.ID = {$wpdb->postmeta}.post_id{$meta_key_condition}) ";
 		}
 		return $join;
 	}
@@ -353,9 +368,17 @@ class Plusmagi_Site_Search
 			// Standard clause: AND (((post_title LIKE '%x%') OR (post_excerpt LIKE '%x%') OR (post_content LIKE '%x%')))
 			// We append an OR branch for meta_value before the trailing parentheses.
 			$like	 = '%' . $wpdb->esc_like($this->search_term) . '%';
-			$meta_sql = $wpdb->prepare(" OR ({$wpdb->postmeta}.meta_value LIKE %s) ", $like);
+			$meta_key_condition = $this->build_meta_key_sql_condition();
+			$meta_sql = $wpdb->prepare(" OR (({$wpdb->postmeta}.meta_value LIKE %s){$meta_key_condition}) ", $like);
 
-			$where = preg_replace('/\)\)\s*$/', ") $meta_sql )", $where);
+			$replacements = 0;
+			$updated_where = preg_replace('/\)\)\s*$/', ") $meta_sql )", $where, 1, $replacements);
+
+			if ($replacements === 1 && is_string($updated_where)) {
+				$where = $updated_where;
+			} elseif (defined('WP_DEBUG') && WP_DEBUG) {
+				error_log('PlusMagi Site Search: skipping meta SQL extension because the expected WHERE shape was not found.');
+			}
 		}
 		return $where;
 	}

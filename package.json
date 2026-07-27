@@ -1,17 +1,17 @@
 {
-  "name": "wp-plusmagi-site-search",
-  "private": true,
-  "workspaces": [
-    "plugin",
-    "Website"
-  ],
-  "scripts": {
-    "dev:website": "npm run dev -w @plusmagi/website",
-    "build:website": "npm run build -w @plusmagi/website",
-    "preview:website": "npm run preview -w @plusmagi/website",
-    "build:plugin": "npm run build -w @plusmagi/plugin",
-    "deploy:plugin": "npm run deploy -w @plusmagi/plugin",
-    "build:all": "npm run build:website && npm run build:plugin",
-    "deploy:all": "npm run build:all && npm run deploy:plugin"
-  }
+	"name": "wp-plusmagi-site-search",
+	"private": true,
+	"scripts": {
+		"build:all": "npm run build:website && npm run build:plugin",
+		"build:plugin": "npm run build -w @plusmagi/plugin",
+		"build:website": "npm run build -w @plusmagi/website",
+		"deploy:all": "npm run build:all && npm run deploy:plugin",
+		"deploy:plugin": "npm run deploy -w @plusmagi/plugin",
+		"dev:website": "npm run dev -w @plusmagi/website",
+		"preview:website": "npm run preview -w @plusmagi/website"
+	},
+	"workspaces": [
+		"plugin",
+		"Website"
+	]
 }

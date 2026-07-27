@@ -1,5 +1,5 @@
 /* Main Wrapper */
-#plusmagi-site-search-wrapper {
+.plusmagi-site-search-wrapper {
 	position: relative;
 	width: 100%;
 	/* Inherit background from theme if possible */
@@ -8,7 +8,7 @@
 }
 
 /* Input Styles */
-#plusmagi-site-search-input {
+.plusmagi-site-search-input {
 	width: 100%;
 	padding: 10px 12px;
 	border: 1px solid var(--wp--preset--color--border, #ccc);
@@ -21,14 +21,14 @@
 	color: var(--wp--preset--color--text, #333);
 }
 
-#plusmagi-site-search-input:focus {
+.plusmagi-site-search-input:focus {
 	border-color: var(--wp--preset--color--primary, #2271b1);
 	box-shadow: 0 0 0 1px var(--wp--preset--color--primary, #2271b1);
 	outline: none;
 }
 
 /* Results Dropdown */
-#plusmagi-site-search-results {
+.plusmagi-site-search-results {
 	display: none;
 	margin-top: 4px;
 	background-color: var(--wp--preset--color--background, #fff);
@@ -43,9 +43,9 @@
 }
 
 /* Ensure children inherit transparency or theme color */
-#plusmagi-site-search-results ul,
-#plusmagi-site-search-results li,
-#plusmagi-site-search-results div {
+.plusmagi-site-search-results ul,
+.plusmagi-site-search-results li,
+.plusmagi-site-search-results div {
 	background-color: inherit;
 	color: inherit;
 	opacity: 1;
