@@ -33,11 +33,14 @@
             <a href="https://pitt.plusmagi.com/" target="_blank" rel="noopener noreferrer" class="bg-[#e12a00] text-white px-10 py-4 font-bold tracking-tighter rounded-sm hover:bg-[#ff5c3b] transition-all active:scale-95">Live Demo</a>
             <a href="https://wordpress.org/plugins/plusmagi-site-search" target="_blank" rel="noopener noreferrer" class="bg-[#ff8f77] text-[#4b0700] px-10 py-4 font-bold tracking-tighter rounded-sm hover:bg-[#ffb4a4] transition-all active:scale-95">Get Started</a>
           </div>
-          <img
-            :src="bannerImage"
-            alt="PlusMagi Site Search banner"
-            class="mt-10 w-full max-w-4xl rounded border border-[#3e4958] shadow-2xl shadow-[#e12a00]/20"
-          />
+          <figure class="mt-10">
+            <img
+              :src="bannerImage"
+              alt="PlusMagi Site Search hero banner"
+              class="w-full max-w-4xl rounded border border-[#3e4958] shadow-2xl shadow-[#e12a00]/20"
+            />
+            <figcaption class="mt-3 text-sm text-[#a1acbd]">Official plugin hero banner</figcaption>
+          </figure>
         </div>
       </section>
 
