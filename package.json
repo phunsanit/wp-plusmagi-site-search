@@ -1,5 +1,8 @@
 {
 	"name": "wp-plusmagi-site-search",
+	"overrides": {
+		"@babel/parser": "^7.26.0"
+	},
 	"private": true,
 	"scripts": {
 		"build:all": "npm run build:website && npm run build:plugin",

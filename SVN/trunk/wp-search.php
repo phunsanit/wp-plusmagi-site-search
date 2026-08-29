@@ -57,6 +57,7 @@ class Plusmagi_Site_Search
 		add_shortcode('plusmagi-site-search', [$this, 'render_shortcode']);
 		add_action('rest_api_init', [$this, 'register_rest_routes']);
 		add_action('init', [$this, 'register_blocks']);
+		add_action('admin_menu', [$this, 'add_admin_menu']);
 	}
 
 	   public function register_blocks()
@@ -74,6 +75,59 @@ class Plusmagi_Site_Search
 			   'render_callback' => [$this, 'render_shortcode']
 		   ]);
 	   }
+
+	public function add_admin_menu()
+	{
+		add_menu_page(
+			'PlusMagi Site Search',
+			'PlusMagi Site Search',
+			'manage_options',
+			'plusmagi-site-search',
+			[$this, 'render_admin_page'],
+			'dashicons-search',
+			100
+		);
+	}
+
+	private function get_admin_preview_image_url()
+	{
+		$local_rel_path = 'assets/admin-preview.png';
+		$local_abs_path = PLUSMAGI_SITE_SEARCH_PATH . $local_rel_path;
+
+		if (file_exists($local_abs_path)) {
+			return PLUSMAGI_SITE_SEARCH_URL . $local_rel_path;
+		}
+
+		return 'https://ps.w.org/plusmagi-site-search/assets/screenshot-1.png';
+	}
+
+	public function render_admin_page()
+	{
+		$preview_image_url = esc_url($this->get_admin_preview_image_url());
+		?>
+		<div class="wrap">
+			<h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+			<p><?php esc_html_e('Thank you for using PlusMagi Site Search! This plugin provides a frontend search experience similar to the WordPress admin search, with role-based access control.', 'plusmagi-site-search'); ?></p>
+
+			<div class="card">
+				<h2><?php esc_html_e('Search Preview', 'plusmagi-site-search'); ?></h2>
+				<p><?php esc_html_e('Live search dropdown example from PlusMagi Site Search.', 'plusmagi-site-search'); ?></p>
+				<img src="<?php echo $preview_image_url; ?>" alt="<?php esc_attr_e('PlusMagi Site Search preview', 'plusmagi-site-search'); ?>" style="max-width:100%;height:auto;border:1px solid #dcdcde;border-radius:6px;display:block;">
+			</div>
+
+			<div class="card">
+				<h2><?php esc_html_e('About the Developer', 'plusmagi-site-search'); ?></h2>
+				<p>
+					<?php esc_html_e('For support, updates, and more information, please visit our website:', 'plusmagi-site-search'); ?>
+					<br>
+					<a href="https://plusmagi-site-search.plusmagi.com" target="_blank" rel="noopener noreferrer">
+						<strong><?php esc_html_e('Visit plusmagi-site-search.plusmagi.com →', 'plusmagi-site-search'); ?></strong>
+					</a>
+				</p>
+			</div>
+		</div>
+		<?php
+	}
 
 	/**
 	 * Enqueue frontend scripts and styles on all public pages.

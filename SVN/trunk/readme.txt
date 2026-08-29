@@ -67,9 +67,9 @@ You can style the search interface with your theme or child theme CSS. The plugi
 
 == Screenshots ==
 
-1. Search widget embedded in a live site sidebar using the PlusMagi Site Search block.
+1. Gutenberg editor block inserter showing the PlusMagi Site Search block.
 2. Ajax live search dropdown showing grouped results for Posts, Category, and Tag.
-3. Full live-site layout with the search widget integrated into a real sidebar.
+3. Frontend layout with the PlusMagi Site Search widget integrated in a sidebar.
 
 == Changelog ==
 

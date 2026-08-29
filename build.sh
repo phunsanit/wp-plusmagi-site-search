@@ -2,7 +2,6 @@
 
 # =============================================================================
 # UNIVERSAL WordPress PLUGIN BUILD SCRIPT
-# - Builds frontend assets (if build:plugin script exists)
 # - Packages production files into a versioned zip package
 # Usage:
 #   ./build.sh <plugin-slug>
@@ -59,19 +58,6 @@ resolve_slug() {
 	echo "$DEFAULT_PLUGIN_SLUG"
 }
 
-# 2. Compile frontend assets if the build script exists in package.json
-build_frontend_if_present() {
-	local package_json="./package.json"
-
-	if [[ -f "$package_json" ]] && grep -q '"build:plugin"' "$package_json"; then
-		echo "-> Compiling Frontend Assets via workspace build..."
-		npm run build:plugin
-		echo "✅ Frontend Build Completed."
-	else
-		echo "-> No 'build:plugin' script found in package.json, skipping frontend build."
-	fi
-}
-
 main() {
 	local raw_slug plugin_slug display_name target_php_file version zip_filename abs_assets_dir
 
@@ -81,6 +67,9 @@ main() {
 
 	target_php_file="$SOURCE_DIR/$plugin_slug.php"
 	if [[ ! -f "$target_php_file" ]]; then
+		target_php_file=$(grep -l "Plugin Name:" "$SOURCE_DIR"/*.php 2>/dev/null | head -n1 || true)
+	fi
+	if [[ -z "$target_php_file" || ! -f "$target_php_file" ]]; then
 		echo "❌ Error: Main plugin file not found at $target_php_file" >&2
 		exit 1
 	fi
@@ -96,8 +85,6 @@ main() {
 	echo "🔎 Target Plugin Slug: $plugin_slug"
 	echo "🚀 Building version: $version"
 	echo "-----------------------------------------"
-
-	build_frontend_if_present
 
 	# Prepare directories
 	mkdir -p "$PM_ASSETS_DIR"
