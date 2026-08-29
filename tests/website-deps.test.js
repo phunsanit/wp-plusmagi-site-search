@@ -11,6 +11,10 @@ const mainTs = fs.readFileSync(
   path.join(repoRoot, 'Website/src/main.ts'),
   'utf8'
 );
+const homePage = fs.readFileSync(
+  path.join(repoRoot, 'Website/src/pages/HomePage.vue'),
+  'utf8'
+);
 
 test('website package no longer includes PrimeVue or PrimeIcons', () => {
   assert.equal(websitePkg.dependencies?.primevue, undefined);
@@ -19,6 +23,19 @@ test('website package no longer includes PrimeVue or PrimeIcons', () => {
 
 test('website app no longer imports PrimeVue or PrimeIcons', () => {
   assert.doesNotMatch(mainTs, /primevue|primeicons/i);
+});
+
+test('website uses SVN assets without public duplicates', () => {
+  assert.equal(websitePkg.scripts?.['sync:plugin-assets'], undefined);
+  assert.match(homePage, /SVN\/assets\/banner-1544x500\.png/);
+
+  for (const relativePath of [
+    'Website/public/icon-128x128.png',
+    'Website/public/icon-256x256.png',
+    'Website/public/plugin-assets/banner-1544x500.png',
+  ]) {
+    assert.equal(fs.existsSync(path.join(repoRoot, relativePath)), false);
+  }
 });
 
 test('svn mirror ignores local git metadata and generated package files', () => {

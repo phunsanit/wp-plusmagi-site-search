@@ -4,6 +4,10 @@ node_modules/
 # Build outputs
 dist/
 coverage/
+Website/dist/
+!Website/dist/
+!Website/dist/assets/
+!Website/dist/assets/**
 
 # SVN mirror/metadata
 SVN/
