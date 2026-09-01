@@ -5,7 +5,7 @@ require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 /**
  * Playwright configuration for PlusMagi Site Search plugin tests.
- * Target: https://pitt.plusmagi.com  (live WordPress site with plugin installed)
+ * Target: WP_URL from the repository .env file.
  *
  * Run all guest tests:       npx playwright test
  * Run with UI:               npx playwright test --ui
@@ -13,7 +13,13 @@ require('dotenv').config({ path: path.join(__dirname, '../.env') });
  * Show HTML report:          npx playwright show-report
  */
 
-const ADMIN_STATE = path.join(__dirname, 'auth/admin-state.json');
+const wpUrl = process.env.WP_URL;
+
+if (!wpUrl) {
+    throw new Error('WP_URL environment variable is required. Set WP_URL in the repository .env file.');
+}
+
+const baseURL = /^https?:\/\//i.test(wpUrl) ? wpUrl : `https://${wpUrl}`;
 
 module.exports = defineConfig({
     testDir: './tests',
@@ -33,7 +39,7 @@ module.exports = defineConfig({
 
     /* Shared settings for every test */
     use: {
-        baseURL: 'https://pitt.plusmagi.com',
+        baseURL,
 
         /* Allow up to 60s for any navigation on this ad-heavy live site */
         navigationTimeout: 60_000,
@@ -51,7 +57,7 @@ module.exports = defineConfig({
 
     projects: [
         // ------------------------------------------------------------------
-        // Setup: log in to WP admin and save cookies for the admin project
+        // Setup: validate REST API authentication with an application password
         // Run: npx playwright test --project=setup  (uses .env)
         // ------------------------------------------------------------------
         {
@@ -80,17 +86,13 @@ module.exports = defineConfig({
         },
 
         // ------------------------------------------------------------------
-        // Admin tests — Gutenberg block tests (requires WP_ADMIN_PASS)
-        // Depends on 'setup' project having run first.
+        // Authenticated block tests — REST API plus public frontend rendering
         // ------------------------------------------------------------------
         {
             name: 'admin',
             testMatch: /block\.spec\.js/,
             dependencies: ['setup'],
-            use: {
-                ...devices['Desktop Chrome'],
-                storageState: ADMIN_STATE,
-            },
+            use: { ...devices['Desktop Chrome'] },
         },
     ],
 });
