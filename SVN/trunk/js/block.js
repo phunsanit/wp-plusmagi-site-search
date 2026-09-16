@@ -1,9 +1,9 @@
-wp.blocks.registerBlockType( 'plusmagi-site-search/search', {
+wp.blocks.registerBlockType( 'plusmagi-post-archives/search', {
 	edit: function () {
 		var el = wp.element.createElement;
-		return el( 'div', { className: 'plusmagi-site-search-editor-wrapper' },
+		return el( 'div', { className: 'plusmagi-post-archives-editor-wrapper' },
 			el( 'div', { style: { padding: '15px', border: '1px solid #ccc', background: '#f9f9f9', pointerEvents: 'none' } },
-				el( 'strong', {}, 'PlusMagi Site Search' ),
+				el( 'strong', {}, 'PlusMagi Post Archives' ),
 				el( 'input', {
 					type: 'text',
 					placeholder: 'Search...',

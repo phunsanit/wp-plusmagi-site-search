@@ -4,7 +4,7 @@ const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 /**
- * Playwright configuration for PlusMagi Site Search plugin tests.
+ * Playwright configuration for PlusMagi Post Archives plugin tests.
  * Target: WP_URL from the repository .env file.
  *
  * Run all guest tests:       npx playwright test

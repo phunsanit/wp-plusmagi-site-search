@@ -25,7 +25,7 @@ yarn-error.log*
 .vscode/
 
 # Local packaging artifacts
-plusmagi-site-search.plusmagi.com/build/
+plusmagi-post-archives.plusmagi.com/build/
 
 # Release artifacts in wp-assets
 wp-assets/*.zip

@@ -1,11 +1,93 @@
+/* WordPress Archives block */
+.wp-block-archives {
+	--plusmagi-archives-select-color: var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, #1e293b));
+	--plusmagi-archives-select-background: var(--wp--preset--color--base, var(--wp--preset--color--background, #ffffff));
+	--plusmagi-archives-select-accent: var(--wp--preset--color--primary, var(--wp--preset--color--accent, var(--plusmagi-archives-select-color)));
+	--plusmagi-archives-select-border: color-mix(in srgb, var(--plusmagi-archives-select-color) 24%, transparent);
+	--plusmagi-archives-select-arrow: color-mix(in srgb, var(--plusmagi-archives-select-color) 65%, transparent);
+	--plusmagi-archives-select-focus-ring: color-mix(in srgb, var(--plusmagi-archives-select-accent) 20%, transparent);
+	--plusmagi-archives-select-picker-shadow: color-mix(in srgb, var(--plusmagi-archives-select-color) 16%, transparent);
+	color: var(--plusmagi-archives-select-color);
+}
+
+.wp-block-archives__label {
+	display: block;
+	margin-bottom: 8px;
+}
+
+.wp-block-archives .form-select {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	width: 100%;
+	padding: 10px 36px 10px 14px;
+	font-size: 1rem;
+	font-family: inherit;
+	line-height: 1.5;
+	color: var(--plusmagi-archives-select-color);
+	background-color: var(--plusmagi-archives-select-background);
+	border: 1px solid rgba(100, 116, 139, 0.35);
+	border-color: var(--plusmagi-archives-select-border);
+	border-radius: 8px;
+	cursor: pointer;
+	outline: none;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.wp-block-archives .form-select:focus {
+	border-color: var(--plusmagi-archives-select-accent);
+	box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+	box-shadow: 0 0 0 3px var(--plusmagi-archives-select-focus-ring);
+}
+
+.wp-block-archives .select-arrow {
+	position: absolute;
+	top: 50%;
+	right: 14px;
+	transform: translateY(-50%);
+	pointer-events: none;
+	display: flex;
+	align-items: center;
+	color: #64748b;
+	color: var(--plusmagi-archives-select-arrow);
+}
+
+@supports (appearance: base-select) {
+	.wp-block-archives .form-select,
+	.wp-block-archives .form-select::picker(select) {
+		appearance: base-select;
+	}
+
+	.wp-block-archives .form-select::picker(select) {
+		padding: 6px;
+		border-radius: 8px;
+		color: var(--plusmagi-archives-select-color);
+		background-color: var(--plusmagi-archives-select-background);
+		border: 1px solid rgba(100, 116, 139, 0.25);
+		border-color: var(--plusmagi-archives-select-border);
+		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+		box-shadow: 0 10px 15px -3px var(--plusmagi-archives-select-picker-shadow);
+	}
+
+	.wp-block-archives .form-select optgroup {
+		font-weight: 600;
+		padding: 6px 8px;
+	}
+
+	.wp-block-archives .form-select option {
+		padding: 8px 12px;
+		border-radius: 6px;
+	}
+}
+
 /* Main Wrapper */
-.plusmagi-site-search-wrapper {
+.plusmagi-post-archives-wrapper {
 	position: relative;
 	width: 100%;
 }
 
 /* Input Styles */
-.plusmagi-site-search-input {
+.plusmagi-post-archives-input {
 	width: 100%;
 	padding: 10px 12px;
 	border: 1px solid #ccc;
@@ -18,14 +100,14 @@
 	color: #333;
 }
 
-.plusmagi-site-search-input:focus {
+.plusmagi-post-archives-input:focus {
 	border-color: #2271b1;
 	box-shadow: 0 0 0 1px #2271b1;
 	outline: none;
 }
 
 /* Results Dropdown */
-.plusmagi-site-search-results {
+.plusmagi-post-archives-results {
 	display: none;
 	margin-top: 4px;
 
@@ -43,22 +125,22 @@
 }
 
 /* Ensure children inherit transparency or theme color */
-.plusmagi-site-search-results ul,
-.plusmagi-site-search-results li,
-.plusmagi-site-search-results div {
+.plusmagi-post-archives-results ul,
+.plusmagi-post-archives-results li,
+.plusmagi-post-archives-results div {
 	background-color: inherit;
 	color: inherit;
 	opacity: 1;
 }
 
 /* Tabs Styles */
- .plusmagi-site-search-tabs {
+ .plusmagi-post-archives-tabs {
 	display: flex;
 	border-bottom: 1px solid #ddd;
 	background: #f1f1f1;
 }
 
-.plusmagi-site-search-tab {
+.plusmagi-post-archives-tab {
 	flex: 1;
 	padding: 10px;
 	text-align: center;
@@ -70,15 +152,15 @@
 	transition: background 0.2s;
 }
 
-.plusmagi-site-search-tab:last-child {
+.plusmagi-post-archives-tab:last-child {
 	border-right: none;
 }
 
-.plusmagi-site-search-tab:hover {
+.plusmagi-post-archives-tab:hover {
 	background: #e9e9e9;
 }
 
-.plusmagi-site-search-tab.active {
+.plusmagi-post-archives-tab.active {
 	background: #fff;
 	border-bottom: 1px solid #fff;
 	margin-bottom: -1px;
@@ -87,22 +169,22 @@
 }
 
 /* Tab Content */
-.plusmagi-site-search-tab-content {
+.plusmagi-post-archives-tab-content {
 	padding: 0;
 	/* max-height is handled by the parent container usually */
 }
 
-.plusmagi-site-search-tab-content ul {
+.plusmagi-post-archives-tab-content ul {
 	margin: 0;
 	padding: 0;
 	list-style: none;
 }
 
-.plusmagi-site-search-tab-content li {
+.plusmagi-post-archives-tab-content li {
 	border-bottom: 1px solid #f0f0f0;
 }
 
-.plusmagi-site-search-tab-content a {
+.plusmagi-post-archives-tab-content a {
 	display: flex;
 	align-items: center;
 	padding: 10px 12px;
@@ -111,12 +193,12 @@
 	transition: background-color 0.1s ease;
 }
 
-.plusmagi-site-search-tab-content a:hover {
+.plusmagi-post-archives-tab-content a:hover {
 	background: #f9f9f9;
 }
 
 /* Icons & Details */
-.plusmagi-site-search-item-icon {
+.plusmagi-post-archives-item-icon {
 	margin-right: 12px;
 	color: #8c8f94;
 	display: flex;
@@ -125,7 +207,7 @@
 	min-width: 24px;
 }
 
-.plusmagi-site-search-item-thumb {
+.plusmagi-post-archives-item-thumb {
 	width: 32px;
 	height: 32px;
 	object-fit: cover;
@@ -133,27 +215,27 @@
 	border: 1px solid #ddd;
 }
 
-.plusmagi-site-search-item-details {
+.plusmagi-post-archives-item-details {
 	display: flex;
 	flex-direction: column;
 	flex: 1;
 }
 
-.plusmagi-site-search-item-title {
+.plusmagi-post-archives-item-title {
 	font-weight: 500;
 	font-size: 14px;
 	line-height: 1.4;
 	color: #1d2327;
 }
 
-.plusmagi-site-search-item-info {
+.plusmagi-post-archives-item-info {
 	font-size: 12px;
 	color: #646970;
 	margin-top: 2px;
 }
 
 /* Status Pills */
-.plusmagi-site-search-status-pill {
+.plusmagi-post-archives-status-pill {
 	display: inline-block;
 	padding: 2px 6px;
 	font-size: 10px;
@@ -166,8 +248,8 @@
 	vertical-align: middle;
 }
 
-.plusmagi-site-search-no-results,
-.plusmagi-site-search-error {
+.plusmagi-post-archives-no-results,
+.plusmagi-post-archives-error {
 	padding: 16px;
 	text-align: center;
 	color: #646970;

@@ -1,4 +1,4 @@
-# PlusMagi Site Search
+# PlusMagi Post Archives
 
 A WordPress plugin that enables detailed and powerful search capabilities for your site.
 
@@ -23,12 +23,12 @@ A WordPress plugin that enables detailed and powerful search capabilities for yo
 
 ## Live Demo
 
-You can see a live demo of the plugin in action at [plusmagi-site-search.plusmagi.com](https://plusmagi-site-search.plusmagi.com/).
+You can see a live demo of the plugin in action at [plusmagi-post-archives.plusmagi.com](https://plusmagi-post-archives.plusmagi.com/).
 
 ## Installation
 
 1. Download the latest release from the `build/` directory or build it yourself.
-2. Upload `plusmagi-site-search.zip` to your WordPress plugins page.
+2. Upload `plusmagi-post-archives.zip` to your WordPress plugins page.
 3. Activate the plugin.
 
 ## Build Instructions
@@ -39,7 +39,7 @@ To build the plugin zip file:
 ./build.sh
 ```
 
-The output file will be located at `build/plusmagi-site-search.zip`.
+The output file will be located at `build/plusmagi-post-archives.zip`.
 
 ## Testing
 
@@ -83,7 +83,7 @@ npm run test:ui
 
 | Area | What is tested |
 |------|---------------|
-| Widget | Input visible, scripts enqueued, `plusmagiSiteSearch` object defined |
+| Widget | Input visible, scripts enqueued, `plusmagiPostArchives` object defined |
 | Debounce | No API request for queries shorter than 2 characters |
 | Search | Dropdown appears, tabs render, tab switching, click-outside closes |
 | Prefixes | `post:`, `tag:`, `category:` all trigger correct REST requests |
@@ -95,7 +95,7 @@ npm run test:ui
 Use the shortcode anywhere on your site:
 
 ```
-[plusmagi-site-search]
+[plusmagi-post-archives]
 ```
 
 ## Security & User Roles

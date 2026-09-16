@@ -16,7 +16,7 @@ cd "$(dirname "$0")" || exit
 SOURCE_DIR="./SVN/trunk"
 PM_ASSETS_DIR="./wp-assets"
 TEMP_DIR="./temp_build"
-DEFAULT_PLUGIN_SLUG="plusmagi"
+DEFAULT_PLUGIN_SLUG="plusmagi-post-archives"
 
 # ✅ Patterns to exclude during rsync (prevents packing dev/test files)
 EXCLUDE_PATTERNS=(

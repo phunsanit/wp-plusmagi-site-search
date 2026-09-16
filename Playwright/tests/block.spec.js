@@ -2,7 +2,7 @@
 const { test, expect } = require('@playwright/test');
 
 /**
- * PlusMagi Site Search — Gutenberg Block tests
+ * PlusMagi Post Archives — Gutenberg Block tests
  *
  * These tests use a WordPress application password through the REST API.
  * Run with the 'admin' Playwright project:
@@ -16,7 +16,7 @@ const { test, expect } = require('@playwright/test');
  *  4. A published post renders the search widget on the frontend
  */
 
-const BLOCK_NAME  = 'plusmagi-site-search/search';
+const BLOCK_NAME  = 'plusmagi-post-archives/search';
 const BLOCK_MARKUP = `<!-- wp:${BLOCK_NAME} /-->`;
 
 function getAuthorizationHeaders() {
@@ -94,7 +94,7 @@ test.describe('Block registration — REST API', () => {
         const post = await createResponse.json();
         try {
             await page.goto(post.link, { waitUntil: 'domcontentloaded', timeout: 30_000 });
-            await expect(page.locator('.plusmagi-site-search-wrapper .plusmagi-site-search-input, #plusmagi-site-search-input').first()).toBeVisible({ timeout: 15_000 });
+            await expect(page.locator('.plusmagi-post-archives-wrapper .plusmagi-post-archives-input, #plusmagi-post-archives-input').first()).toBeVisible({ timeout: 15_000 });
         } finally {
             const deleteResponse = await request.delete(`/wp-json/wp/v2/posts/${post.id}?force=true`, { headers });
             expect(deleteResponse.status(), await deleteResponse.text()).toBe(200);

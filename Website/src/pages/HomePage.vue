@@ -1,9 +1,9 @@
 <template>
   <div class="site">
     <header>
-      <a class="brand" href="#top"><img :src="icon128Url" alt="" />PlusMagi <b>Site Search</b></a>
+      <a class="brand" href="#top"><img :src="icon128Url" alt="" />PlusMagi <b>Post Archives</b></a>
       <nav aria-label="Main navigation"><a href="#features">Features</a><a href="#access">Access</a><a href="#setup">Setup</a></nav>
-      <a class="header-cta" href="https://wordpress.org/plugins/plusmagi-site-search" target="_blank" rel="noopener">Get plugin ↗</a>
+      <a class="header-cta" href="https://wordpress.org/plugins/plusmagi-post-archives" target="_blank" rel="noopener">Get plugin ↗</a>
     </header>
 
     <main id="top">
@@ -13,7 +13,7 @@
           <h1>Find the content<br />your site already has.</h1>
           <p class="lead">Fast, permission-aware search across posts, taxonomy, and custom fields. One search box, useful results, no external index.</p>
           <div class="actions">
-            <a class="primary" href="https://wordpress.org/plugins/plusmagi-site-search" target="_blank" rel="noopener">Install from WordPress ↗</a>
+            <a class="primary" href="https://wordpress.org/plugins/plusmagi-post-archives" target="_blank" rel="noopener">Install from WordPress ↗</a>
             <a class="secondary" href="https://pitt.plusmagi.com/" target="_blank" rel="noopener">Explore live demo</a>
           </div>
         </div>
@@ -59,13 +59,13 @@
 
       <section id="setup" class="setup">
         <div><p class="eyebrow dark">Quick setup</p><h2>From install to search in three steps.</h2></div>
-        <ol><li><span>01</span><div><b>Install</b><p>Add the plugin from WordPress.org or upload the release zip.</p></div></li><li><span>02</span><div><b>Activate</b><p>Enable PlusMagi Site Search in the Plugins screen.</p></div></li><li><span>03</span><div><b>Place</b><p>Add the shortcode where search should appear.</p><code>[plusmagi-site-search]</code></div></li></ol>
+        <ol><li><span>01</span><div><b>Install</b><p>Add the plugin from WordPress.org or upload the release zip.</p></div></li><li><span>02</span><div><b>Activate</b><p>Enable PlusMagi Post Archives in the Plugins screen.</p></div></li><li><span>03</span><div><b>Place</b><p>Add the shortcode where archives should appear.</p><code>[plusmagi-post-archives]</code></div></li></ol>
       </section>
 
-      <section class="final-cta"><img :src="icon256Url" alt="" /><div><p>Search should uncover content, not hide it.</p><h2>Put better search on your WordPress site.</h2></div><a href="https://wordpress.org/plugins/plusmagi-site-search" target="_blank" rel="noopener">Get PlusMagi ↗</a></section>
+      <section class="final-cta"><img :src="icon256Url" alt="" /><div><p>Archives should uncover content, not hide it.</p><h2>Put better post archives on your WordPress site.</h2></div><a href="https://wordpress.org/plugins/plusmagi-post-archives" target="_blank" rel="noopener">Get PlusMagi ↗</a></section>
     </main>
 
-    <footer><a class="brand" href="#top"><img :src="icon128Url" alt="" />PlusMagi <b>Site Search</b></a><p>Open-source WordPress search, built by PlusMagi.</p><a href="https://wordpress.org/plugins/plusmagi-site-search" target="_blank" rel="noopener">WordPress.org ↗</a></footer>
+    <footer><a class="brand" href="#top"><img :src="icon128Url" alt="" />PlusMagi <b>Post Archives</b></a><p>Open-source WordPress post archives, built by PlusMagi.</p><a href="https://wordpress.org/plugins/plusmagi-post-archives" target="_blank" rel="noopener">WordPress.org ↗</a></footer>
   </div>
 </template>
 
@@ -80,7 +80,7 @@ const activeTab = ref<Tab>('posts')
 const query = ref('search')
 const tabs: { key: Tab; label: string }[] = [{ key: 'posts', label: 'Posts' }, { key: 'category', label: 'Categories' }, { key: 'tag', label: 'Tags' }]
 const results = {
-  posts: [{ title: 'Configure PlusMagi Search', meta: 'Guide · Updated today', mark: 'P' }, { title: 'WooCommerce SKU Search', meta: 'Documentation · 4 min read', mark: 'P' }, { title: 'Internal Knowledge Base', meta: 'Private · Post', mark: 'P' }],
+  posts: [{ title: 'Configure PlusMagi Archives', meta: 'Guide · Updated today', mark: 'P' }, { title: 'WooCommerce SKU Archive', meta: 'Documentation · 4 min read', mark: 'P' }, { title: 'Internal Knowledge Base', meta: 'Private · Post', mark: 'P' }],
   category: [{ title: 'Documentation', meta: 'Category · 18 posts', mark: 'C' }, { title: 'WooCommerce', meta: 'Category · 7 posts', mark: 'C' }],
   tag: [{ title: 'live-search', meta: 'Tag · 9 posts', mark: 'T' }, { title: 'sku-filter', meta: 'Tag · 4 posts', mark: 'T' }],
 } as const

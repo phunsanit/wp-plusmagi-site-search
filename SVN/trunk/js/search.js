@@ -1,10 +1,15 @@
 jQuery(document).ready(function ($) {
-	var minChars = parseInt(plusmagiSiteSearch.minChars, 10) || 3;
+	var minChars = parseInt(plusmagiPostArchives.minChars, 10) || 3;
+	var searchTabs = [
+		{ key: 'posts', label: 'Posts', mode: 'post' },
+		{ key: 'categories', label: 'Category', mode: 'term' },
+		{ key: 'tags', label: 'Tag', mode: 'term' }
+	];
 
-	$('.plusmagi-site-search-wrapper').each(function (index) {
+	$('.plusmagi-post-archives-wrapper').each(function (index) {
 		var $wrapper = $(this);
-		var $input = $wrapper.find('.plusmagi-site-search-input').first();
-		var $results = $wrapper.find('.plusmagi-site-search-results').first();
+		var $input = $wrapper.find('.plusmagi-post-archives-input').first();
+		var $results = $wrapper.find('.plusmagi-post-archives-results').first();
 		var timer;
 		var activeTab = 'posts';
 
@@ -55,11 +60,11 @@ jQuery(document).ready(function ($) {
 		function buildItem(item, mode) {
 			var $li = $('<li>');
 			var $a = $('<a>').attr('href', item.link);
-			var $icon = $('<div>').addClass('plusmagi-site-search-item-icon');
+			var $icon = $('<div>').addClass('plusmagi-post-archives-item-icon');
 
 			if (item.thumbnail) {
 				$('<img>')
-					.addClass('plusmagi-site-search-item-thumb')
+					.addClass('plusmagi-post-archives-item-thumb')
 					.attr('src', item.thumbnail)
 					.attr('alt', '')
 					.appendTo($icon);
@@ -77,17 +82,17 @@ jQuery(document).ready(function ($) {
 					.appendTo($icon);
 			}
 
-			var $details = $('<div>').addClass('plusmagi-site-search-item-details');
-			var $title = $('<span>').addClass('plusmagi-site-search-item-title').text(item.title);
+			var $details = $('<div>').addClass('plusmagi-post-archives-item-details');
+			var $title = $('<span>').addClass('plusmagi-post-archives-item-title').text(item.title);
 
 			if (mode !== 'term' && item.status && item.status !== 'publish') {
-				$('<span>').addClass('plusmagi-site-search-status-pill').text(item.status).appendTo($title);
+				$('<span>').addClass('plusmagi-post-archives-status-pill').text(item.status).appendTo($title);
 			}
 
 			$details.append($title);
 
 			if (mode === 'post') {
-				$('<span>').addClass('plusmagi-site-search-item-info').text(item.date).appendTo($details);
+				$('<span>').addClass('plusmagi-post-archives-item-info').text(item.date).appendTo($details);
 			}
 
 			$a.append($icon).append($details);
@@ -98,7 +103,7 @@ jQuery(document).ready(function ($) {
 
 		function renderList(items, mode) {
 			if (items.length === 0) {
-				return $('<div>').addClass('plusmagi-site-search-no-results').text('No results found.');
+				return $('<div>').addClass('plusmagi-post-archives-no-results').text('No results found.');
 			}
 
 			var $ul = $('<ul>');
@@ -112,30 +117,42 @@ jQuery(document).ready(function ($) {
 		function renderTabs(buckets) {
 			$results.empty();
 
-			var $tabs = $('<div>').addClass('plusmagi-site-search-tabs');
-			$('<div>').addClass('plusmagi-site-search-tab').attr('data-tab', 'posts').text('Posts (' + buckets.posts.length + ')').appendTo($tabs);
-			$('<div>').addClass('plusmagi-site-search-tab').attr('data-tab', 'categories').text('Category (' + buckets.categories.length + ')').appendTo($tabs);
-			$('<div>').addClass('plusmagi-site-search-tab').attr('data-tab', 'tags').text('Tag (' + buckets.tags.length + ')').appendTo($tabs);
+			var $tabs = $('<div>').addClass('plusmagi-post-archives-tabs');
 
-			var $panelPosts = $('<div>').addClass('plusmagi-site-search-tab-content').attr('data-tab-content', 'posts').hide().append(renderList(buckets.posts, 'post'));
-			var $panelCats = $('<div>').addClass('plusmagi-site-search-tab-content').attr('data-tab-content', 'categories').hide().append(renderList(buckets.categories, 'term'));
-			var $panelTags = $('<div>').addClass('plusmagi-site-search-tab-content').attr('data-tab-content', 'tags').hide().append(renderList(buckets.tags, 'term'));
+			$.each(searchTabs, function (_, tab) {
+				$('<div>')
+					.addClass('plusmagi-post-archives-tab')
+					.attr('data-tab', tab.key)
+					.text(tab.label + ' (' + buckets[tab.key].length + ')')
+					.appendTo($tabs);
+			});
 
-			$results.append($tabs).append($panelPosts).append($panelCats).append($panelTags).show();
+			$results.append($tabs);
+			$.each(searchTabs, function (_, tab) {
+				$results.append(
+					$('<div>')
+						.addClass('plusmagi-post-archives-tab-content')
+						.attr('data-tab-content', tab.key)
+						.hide()
+						.append(renderList(buckets[tab.key], tab.mode))
+				);
+			});
+
+			$results.show();
 			switchTab(activeTab);
 		}
 
 		function switchTab(tabName) {
 			activeTab = tabName;
-			$results.find('.plusmagi-site-search-tab').removeClass('active');
-			$results.find('.plusmagi-site-search-tab[data-tab="' + tabName + '"]').addClass('active');
+			$results.find('.plusmagi-post-archives-tab').removeClass('active');
+			$results.find('.plusmagi-post-archives-tab[data-tab="' + tabName + '"]').addClass('active');
 
-			$results.find('.plusmagi-site-search-tab-content').hide();
-			$results.find('.plusmagi-site-search-tab-content[data-tab-content="' + tabName + '"]').show();
+			$results.find('.plusmagi-post-archives-tab-content').hide();
+			$results.find('.plusmagi-post-archives-tab-content[data-tab-content="' + tabName + '"]').show();
 			repositionDropdown();
 		}
 
-		$results.on('mousedown', '.plusmagi-site-search-tab', function (e) {
+		$results.on('mousedown', '.plusmagi-post-archives-tab', function (e) {
 			e.preventDefault();
 			switchTab($(this).data('tab'));
 		});
@@ -160,11 +177,11 @@ jQuery(document).ready(function ($) {
 
 			timer = setTimeout(function () {
 				$.ajax({
-					url: plusmagiSiteSearch.root + 'plusmagi-site-search/v1/search',
+					url: plusmagiPostArchives.root + 'plusmagi-post-archives/v1/search',
 					method: 'GET',
 					data: { term: term },
 					beforeSend: function (xhr) {
-						xhr.setRequestHeader('X-WP-Nonce', plusmagiSiteSearch.nonce);
+						xhr.setRequestHeader('X-WP-Nonce', plusmagiPostArchives.nonce);
 					},
 					success: function (response) {
 						var buckets = { posts: [], categories: [], tags: [] };
@@ -183,7 +200,7 @@ jQuery(document).ready(function ($) {
 					},
 					error: function () {
 						$results.empty()
-							.append($('<div>').addClass('plusmagi-site-search-error').text('Error retrieving results.'))
+							.append($('<div>').addClass('plusmagi-post-archives-error').text('Error retrieving results.'))
 							.show();
 						repositionDropdown();
 					}

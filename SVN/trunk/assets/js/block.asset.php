@@ -5,5 +5,5 @@ return array(
 		'wp-blocks',
 		'wp-element',
 	),
-	'version' => '1.0.2',
+	'version' => '1.0.0',
 );

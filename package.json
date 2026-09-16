@@ -1,5 +1,5 @@
 {
-	"name": "wp-plusmagi-site-search",
+	"name": "wp-plusmagi-post-archives",
 	"overrides": {
 		"@babel/parser": "^7.26.0"
 	},

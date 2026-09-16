@@ -2,7 +2,7 @@
 const { test, expect } = require('@playwright/test');
 
 /**
- * PlusMagi Site Search — UI & functional tests
+ * PlusMagi Post Archives — UI & functional tests
  *
  * Tests cover:
  *  1. Widget is present and visible
@@ -18,14 +18,14 @@ const { test, expect } = require('@playwright/test');
  */
 
 // Supports both legacy ID-based markup and new class-based markup.
-const SEARCH_INPUT   = '.plusmagi-site-search-wrapper .plusmagi-site-search-input, #plusmagi-site-search-input';
-const SEARCH_RESULTS = '.plusmagi-site-search-results, #plusmagi-site-search-results';
+const SEARCH_INPUT   = '.plusmagi-post-archives-wrapper .plusmagi-post-archives-input, #plusmagi-post-archives-input';
+const SEARCH_RESULTS = '.plusmagi-post-archives-results, #plusmagi-post-archives-results';
 
 function panelSelector(tab) {
-    return `${SEARCH_RESULTS} .plusmagi-site-search-tab-content[data-tab-content="${tab}"], ${SEARCH_RESULTS} #tab-content-${tab}`;
+    return `${SEARCH_RESULTS} .plusmagi-post-archives-tab-content[data-tab-content="${tab}"], ${SEARCH_RESULTS} #tab-content-${tab}`;
 }
 function tabSelector(tab) {
-    return `${SEARCH_RESULTS} .plusmagi-site-search-tab[data-tab="${tab}"], ${SEARCH_RESULTS} .plusmagi-tab[data-tab="${tab}"]`;
+    return `${SEARCH_RESULTS} .plusmagi-post-archives-tab[data-tab="${tab}"], ${SEARCH_RESULTS} .plusmagi-tab[data-tab="${tab}"]`;
 }
 
 async function activateTab(page, tab) {
@@ -35,7 +35,7 @@ async function activateTab(page, tab) {
 }
 
 // REST API — namespace matches register_rest_routes()
-const REST_SEARCH = '/wp-json/plusmagi-site-search/v1/search';
+const REST_SEARCH = '/wp-json/plusmagi-post-archives/v1/search';
 
 /** Wait for the debounce (300 ms) + a safety margin */
 const DEBOUNCE_WAIT = 600;
@@ -65,7 +65,7 @@ async function goHome(page) {
         const inputVisible = await page.locator(SEARCH_INPUT).first().isVisible({ timeout: 5_000 }).catch(() => false);
         const hasPluginBootstrap = await page.evaluate(() => {
             const w = /** @type {any} */ (window);
-            return typeof w.plusmagiSiteSearch?.root === 'string' && typeof w.plusmagiSiteSearch?.nonce === 'string';
+            return typeof w.plusmagiPostArchives?.root === 'string' && typeof w.plusmagiPostArchives?.nonce === 'string';
         });
 
         return inputVisible && hasPluginBootstrap;
@@ -114,7 +114,7 @@ async function goHome(page) {
 async function getMinChars(page) {
     const minChars = await page.evaluate(() => {
         const w = /** @type {any} */ (window);
-        const val = Number(w.plusmagiSiteSearch?.minChars);
+        const val = Number(w.plusmagiPostArchives?.minChars);
         return Number.isInteger(val) && val >= 1 ? val : 2;
     });
     return minChars;
@@ -125,7 +125,7 @@ async function getMinChars(page) {
 // ---------------------------------------------------------------------------
 async function searchFor(page, term) {
     const responsePromise = page.waitForResponse(
-        res => res.url().includes('plusmagi-site-search/v1/search'),
+        res => res.url().includes('plusmagi-post-archives/v1/search'),
         { timeout: 15_000 }
     );
     await page.locator(SEARCH_INPUT).click();
@@ -136,7 +136,7 @@ async function searchFor(page, term) {
 // ===========================================================================
 // 1. Widget — presence & JS bootstrap
 // ===========================================================================
-test.describe('PlusMagi Site Search — Widget', () => {
+test.describe('PlusMagi Post Archives — Widget', () => {
 
     test.beforeEach(async ({ page }, testInfo) => {
         try {
@@ -151,40 +151,40 @@ test.describe('PlusMagi Site Search — Widget', () => {
     });
 
     test('results container exists in the DOM', async ({ page }) => {
-        // search.js moves #plusmagi-site-search-results to <body>; it starts hidden
+        // search.js moves #plusmagi-post-archives-results to <body>; it starts hidden
         await expect(page.locator(SEARCH_RESULTS)).toBeAttached();
     });
 
     test('plugin script (search.js) is enqueued', async ({ page }) => {
         const found = await page.evaluate(() =>
             Array.from(document.scripts).some(s =>
-                s.src.includes('plusmagi-site-search') && s.src.includes('search.js')
+                s.src.includes('plusmagi-post-archives') && s.src.includes('search.js')
             )
         );
         expect(found, 'search.js should be enqueued on the page').toBe(true);
     });
 
-    test('plusmagiSiteSearch localisation object has root, nonce, and minChars', async ({ page }) => {
+    test('plusmagiPostArchives localisation object has root, nonce, and minChars', async ({ page }) => {
         const obj = await page.evaluate(() => {
             const w = /** @type {any} */ (window);
             return {
-                type:  typeof w.plusmagiSiteSearch,
-                hasRoot:  typeof w.plusmagiSiteSearch?.root === 'string',
-                hasNonce: typeof w.plusmagiSiteSearch?.nonce === 'string',
-                hasMinChars: Number.isInteger(Number(w.plusmagiSiteSearch?.minChars)),
+                type:  typeof w.plusmagiPostArchives,
+                hasRoot:  typeof w.plusmagiPostArchives?.root === 'string',
+                hasNonce: typeof w.plusmagiPostArchives?.nonce === 'string',
+                hasMinChars: Number.isInteger(Number(w.plusmagiPostArchives?.minChars)),
             };
         });
-        expect(obj.type, 'plusmagiSiteSearch should be an object').toBe('object');
-        expect(obj.hasRoot,  'plusmagiSiteSearch.root should be a string').toBe(true);
-        expect(obj.hasNonce, 'plusmagiSiteSearch.nonce should be a string').toBe(true);
-        expect(obj.hasMinChars, 'plusmagiSiteSearch.minChars should be numeric').toBe(true);
+        expect(obj.type, 'plusmagiPostArchives should be an object').toBe('object');
+        expect(obj.hasRoot,  'plusmagiPostArchives.root should be a string').toBe(true);
+        expect(obj.hasNonce, 'plusmagiPostArchives.nonce should be a string').toBe(true);
+        expect(obj.hasMinChars, 'plusmagiPostArchives.minChars should be numeric').toBe(true);
     });
 });
 
 // ===========================================================================
 // 2. Widget — debounce & dropdown behaviour
 // ===========================================================================
-test.describe('PlusMagi Site Search — Search behaviour', () => {
+test.describe('PlusMagi Post Archives — Search behaviour', () => {
 
     test.beforeEach(async ({ page }, testInfo) => {
         try {
@@ -198,7 +198,7 @@ test.describe('PlusMagi Site Search — Search behaviour', () => {
         const minChars = await getMinChars(page);
         const requests = [];
         page.on('request', req => {
-            if (req.url().includes('plusmagi-site-search/v1/search')) requests.push(req);
+            if (req.url().includes('plusmagi-post-archives/v1/search')) requests.push(req);
         });
 
         const belowMin = 'a'.repeat(Math.max(1, minChars - 1));
@@ -222,7 +222,7 @@ test.describe('PlusMagi Site Search — Search behaviour', () => {
         const minChars = await getMinChars(page);
         let searchRequest = null;
         page.on('request', req => {
-            if (req.url().includes('plusmagi-site-search/v1/search')) searchRequest = req;
+            if (req.url().includes('plusmagi-post-archives/v1/search')) searchRequest = req;
         });
 
         await searchFor(page, 'j'.repeat(minChars));
@@ -248,7 +248,7 @@ test.describe('PlusMagi Site Search — Search behaviour', () => {
 // ===========================================================================
 // 3. Widget — tab UI
 // ===========================================================================
-test.describe('PlusMagi Site Search — Tabs', () => {
+test.describe('PlusMagi Post Archives — Tabs', () => {
 
     test.beforeEach(async ({ page }, testInfo) => {
         try {
@@ -301,7 +301,7 @@ test.describe('PlusMagi Site Search — Tabs', () => {
 // ===========================================================================
 // 4. Prefix searches
 // ===========================================================================
-test.describe('PlusMagi Site Search — Prefix searches', () => {
+test.describe('PlusMagi Post Archives — Prefix searches', () => {
 
     test.beforeEach(async ({ page }, testInfo) => {
         try {
@@ -314,7 +314,7 @@ test.describe('PlusMagi Site Search — Prefix searches', () => {
     test('"post:" prefix sends correct term parameter', async ({ page }) => {
         let capturedUrl = '';
         page.on('request', req => {
-            if (req.url().includes('plusmagi-site-search/v1/search')) capturedUrl = req.url();
+            if (req.url().includes('plusmagi-post-archives/v1/search')) capturedUrl = req.url();
         });
 
         await searchFor(page, 'post:jQuery');
@@ -340,7 +340,7 @@ test.describe('PlusMagi Site Search — Prefix searches', () => {
 // ===========================================================================
 // 5. REST API contract (request fixture — no browser)
 // ===========================================================================
-test.describe('PlusMagi Site Search — REST API', () => {
+test.describe('PlusMagi Post Archives — REST API', () => {
 
     test('GET without term returns 400', async ({ request }) => {
         const res = await request.get(REST_SEARCH);
