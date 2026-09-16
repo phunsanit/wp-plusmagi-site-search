@@ -1,26 +1,26 @@
 <?php
 /**
- * Plugin Name: PlusMagi Site Search
- * Plugin URI:  https://plusmagi-site-search.plusmagi.com
- * Description: A frontend search plugin that mimics the WordPress admin search functionality, with role-based access control.
- * Version:    1.0.2
+ * Plugin Name: PlusMagi Post Archives
+ * Plugin URI:  https://plusmagi-post-archives.plusmagi.com
+ * Description: A frontend post archives plugin that organizes WordPress content with search capabilities and role-based access control.
+ * Version:    1.0.0
  * Author:     Pitt Phunsanit <phunsanit@gmail.com>, <phunsanit@plusmagi.com>
  * Author URI: https://pitt.plusmagi.com
- * License:    MIT
- * License URI: https://opensource.org/licenses/MIT
- * Text Domain: plusmagi-site-search
+ * License:    GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: plusmagi-post-archives
  */
 
 if (!defined('ABSPATH')) {
 	exit;
 }
 
-define('PLUSMAGI_SITE_SEARCH_VERSION', '1.0.2');
-define('PLUSMAGI_SITE_SEARCH_FILE', __FILE__);
-define('PLUSMAGI_SITE_SEARCH_URL', plugin_dir_url(__FILE__));
-define('PLUSMAGI_SITE_SEARCH_PATH', plugin_dir_path(__FILE__));
+define('PLUSMAGI_POST_ARCHIVES_VERSION', '1.0.0');
+define('PLUSMAGI_POST_ARCHIVES_FILE', __FILE__);
+define('PLUSMAGI_POST_ARCHIVES_URL', plugin_dir_url(__FILE__));
+define('PLUSMAGI_POST_ARCHIVES_PATH', plugin_dir_path(__FILE__));
 
-class Plusmagi_Site_Search
+class Plusmagi_Post_Archives
 {
 
 	private static $instance = null;
@@ -36,7 +36,7 @@ class Plusmagi_Site_Search
 
 	/**
 	 * Default meta keys included in meta_value search.
-	 * Can be customized via the plusmagi_site_search_meta_keys filter.
+	 * Can be customized via the plusmagi_post_archives_meta_keys filter.
 	 *
 	 * @var string[]
 	 */
@@ -52,37 +52,42 @@ class Plusmagi_Site_Search
 
 	public function __construct()
 	{
-		add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']);
-		add_shortcode('plusmagi_search', [$this, 'render_shortcode']);
-		add_shortcode('plusmagi-site-search', [$this, 'render_shortcode']);
-		add_action('rest_api_init', [$this, 'register_rest_routes']);
+		add_shortcode('plusmagi-post-archives', [$this, 'render_shortcode']);
 		add_action('init', [$this, 'register_blocks']);
 		add_action('admin_menu', [$this, 'add_admin_menu']);
 	}
 
-	   public function register_blocks()
-	   {
-		   wp_register_script(
-			   'plusmagi-site-search-block-js',
-			   PLUSMAGI_SITE_SEARCH_URL . 'assets/js/block.js',
-			   ['wp-blocks', 'wp-element'],
-			   PLUSMAGI_SITE_SEARCH_VERSION,
-			   true
-		   );
+	public function register_blocks()
+	{
+		wp_register_style(
+			'plusmagi-post-archives-archives',
+			PLUSMAGI_POST_ARCHIVES_URL . 'assets/css/style.css',
+			[],
+			PLUSMAGI_POST_ARCHIVES_VERSION
+		);
 
-		   register_block_type('plusmagi-site-search/search', [
-			   'editor_script'   => 'plusmagi-site-search-block-js',
-			   'render_callback' => [$this, 'render_shortcode']
-		   ]);
-	   }
+		wp_register_script(
+			'plusmagi-post-archives-block-js',
+			PLUSMAGI_POST_ARCHIVES_URL . 'assets/js/block.js',
+			['wp-blocks', 'wp-element'],
+			PLUSMAGI_POST_ARCHIVES_VERSION,
+			true
+		);
+
+		register_block_type('plusmagi-post-archives/search', [
+			'editor_script'   => 'plusmagi-post-archives-block-js',
+			'style'           => 'plusmagi-post-archives-archives',
+			'render_callback' => [$this, 'render_shortcode']
+		]);
+	}
 
 	public function add_admin_menu()
 	{
 		add_menu_page(
-			'PlusMagi Site Search',
-			'PlusMagi Site Search',
+			'PlusMagi Post Archives',
+			'PlusMagi Post Archives',
 			'manage_options',
-			'plusmagi-site-search',
+			'plusmagi-post-archives',
 			[$this, 'render_admin_page'],
 			'dashicons-search',
 			100
@@ -92,36 +97,38 @@ class Plusmagi_Site_Search
 	private function get_admin_preview_image_url()
 	{
 		$local_rel_path = 'assets/admin-preview.png';
-		$local_abs_path = PLUSMAGI_SITE_SEARCH_PATH . $local_rel_path;
+		$local_abs_path = PLUSMAGI_POST_ARCHIVES_PATH . $local_rel_path;
 
 		if (file_exists($local_abs_path)) {
-			return PLUSMAGI_SITE_SEARCH_URL . $local_rel_path;
+			return PLUSMAGI_POST_ARCHIVES_URL . $local_rel_path;
 		}
 
-		return 'https://ps.w.org/plusmagi-site-search/assets/screenshot-1.png';
+		return '';
 	}
 
 	public function render_admin_page()
 	{
-		$preview_image_url = esc_url($this->get_admin_preview_image_url());
+		$preview_image_url = $this->get_admin_preview_image_url();
 		?>
 		<div class="wrap">
 			<h1><?php echo esc_html(get_admin_page_title()); ?></h1>
-			<p><?php esc_html_e('Thank you for using PlusMagi Site Search! This plugin provides a frontend search experience similar to the WordPress admin search, with role-based access control.', 'plusmagi-site-search'); ?></p>
+			<p><?php esc_html_e('Thank you for using PlusMagi Post Archives! This plugin provides a frontend archive experience with search capabilities similar to the WordPress admin, plus role-based access control.', 'plusmagi-post-archives'); ?></p>
 
 			<div class="card">
-				<h2><?php esc_html_e('Search Preview', 'plusmagi-site-search'); ?></h2>
-				<p><?php esc_html_e('Live search dropdown example from PlusMagi Site Search.', 'plusmagi-site-search'); ?></p>
-				<img src="<?php echo $preview_image_url; ?>" alt="<?php esc_attr_e('PlusMagi Site Search preview', 'plusmagi-site-search'); ?>" style="max-width:100%;height:auto;border:1px solid #dcdcde;border-radius:6px;display:block;">
+				<h2><?php esc_html_e('Archives Preview', 'plusmagi-post-archives'); ?></h2>
+				<p><?php esc_html_e('Live archives dropdown example from PlusMagi Post Archives.', 'plusmagi-post-archives'); ?></p>
+				<?php if ($preview_image_url) : ?>
+					<img src="<?php echo esc_url($preview_image_url); ?>" alt="<?php esc_attr_e('PlusMagi Post Archives preview', 'plusmagi-post-archives'); ?>" style="max-width:100%;height:auto;border:1px solid #dcdcde;border-radius:6px;display:block;">
+				<?php endif; ?>
 			</div>
 
 			<div class="card">
-				<h2><?php esc_html_e('About the Developer', 'plusmagi-site-search'); ?></h2>
+				<h2><?php esc_html_e('About the Developer', 'plusmagi-post-archives'); ?></h2>
 				<p>
-					<?php esc_html_e('For support, updates, and more information, please visit our website:', 'plusmagi-site-search'); ?>
+					<?php esc_html_e('For support, updates, and more information, please visit our website:', 'plusmagi-post-archives'); ?>
 					<br>
-					<a href="https://plusmagi-site-search.plusmagi.com" target="_blank" rel="noopener noreferrer">
-						<strong><?php esc_html_e('Visit plusmagi-site-search.plusmagi.com →', 'plusmagi-site-search'); ?></strong>
+					<a href="https://plusmagi-post-archives.plusmagi.com" target="_blank" rel="noopener noreferrer">
+						<strong><?php esc_html_e('Visit plusmagi-post-archives.plusmagi.com →', 'plusmagi-post-archives'); ?></strong>
 					</a>
 				</p>
 			</div>
@@ -129,80 +136,70 @@ class Plusmagi_Site_Search
 		<?php
 	}
 
-	/**
-	 * Enqueue frontend scripts and styles on all public pages.
-	 *
-	 * The search widget can be placed in sidebars, widget areas, or theme
-	 * templates where $post->post_content is never involved, so checking
-	 * has_shortcode() / has_block() is not a reliable gate. Loading two
-	 * small files on every frontend page is the correct approach for any
-	 * plugin whose output location cannot be predicted at enqueue time.
-	 */
-	   public function enqueue_scripts()
-	   {
-		   wp_enqueue_script(
-			   'plusmagi-site-search-js',
-			   PLUSMAGI_SITE_SEARCH_URL . 'assets/js/search.js',
-			   ['jquery'],
-			   PLUSMAGI_SITE_SEARCH_VERSION,
-			   true
-		   );
+	public function render_shortcode()
+	{
+		global $wpdb;
 
-		   wp_enqueue_style(
-			   'plusmagi-site-search-css',
-			   PLUSMAGI_SITE_SEARCH_URL . 'assets/css/search.css',
-			   ['dashicons'],
-			   PLUSMAGI_SITE_SEARCH_VERSION
-		   );
+		$cache_key = 'plusmagi_post_archives_months';
+		$archives = wp_cache_get($cache_key, 'plusmagi-post-archives');
 
-		   wp_localize_script('plusmagi-site-search-js', 'plusmagiSiteSearch', [
-			   'root'  => esc_url_raw(rest_url()),
-			   'nonce' => wp_create_nonce('wp_rest'),
-			   'minChars' => 3,
-		   ]);
-	   }
+		if (false === $archives) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Monthly archive aggregation is cached below and mirrors WordPress archives data.
+			$archives = $wpdb->get_results(
+				"SELECT YEAR(post_date) AS year, MONTH(post_date) AS month, COUNT(ID) AS post_count
+				FROM {$wpdb->posts}
+				WHERE post_type = 'post'
+					AND post_status = 'publish'
+					AND post_date > '0000-00-00 00:00:00'
+				GROUP BY YEAR(post_date), MONTH(post_date)
+				ORDER BY year DESC, month DESC"
+			);
+			wp_cache_set($cache_key, $archives, 'plusmagi-post-archives', 3600);
+		}
 
-	   public function render_shortcode()
-	   {
-		   ob_start();
-		   ?>
-		   <div class="plusmagi-site-search-wrapper">
-			   <input type="text" class="plusmagi-site-search-input" placeholder="<?php esc_attr_e('Search...', 'plusmagi-site-search'); ?>" autocomplete="off">
-			   <div class="plusmagi-site-search-results"></div>
-		   </div>
-		   <?php
-		   return ob_get_clean();
-	   }
+		if (empty($archives)) {
+			return '';
+		}
 
-	   public function register_rest_routes()
-	   {
-		   register_rest_route('plusmagi-site-search/v1', '/search', [
-			   'methods'  => 'GET',
-			   'callback' => [$this, 'handle_search'],
-			   /**
-				* This is an intentionally public search endpoint, equivalent to
-				* WordPress core's own search. Unauthenticated requests receive only
-				* published content. Role-based access control (exposing drafts /
-				* private posts to editors and authors) is enforced inside
-				* handle_search() via is_user_logged_in() and current_user_can(),
-				* which is the correct pattern for endpoints that serve different
-				* data depending on the caller's authentication state.
-				*
-				* @see https://developer.wordpress.org/rest-api/extending-the-rest-api/adding-custom-endpoints/#permissions-callback
-				*/
-			   'permission_callback' => '__return_true',
-			   'args'   => [
-				   'term' => [
-					   'required'        => true,
-					   'type'            => 'string',
-					   'sanitize_callback' => 'sanitize_text_field',
-					   'validate_callback' => function ($value) {
-						   return is_string($value) && strlen(trim($value)) >= 3;
-					   },
-				   ],
-			   ],
-		   ]);
-	   }
+		ob_start();
+		$select_attributes = '';
+		if (!function_exists('amp_is_request') || !amp_is_request()) {
+			$select_attributes = ' onchange="if (this.value) window.location.href = this.value;"';
+		}
+		?>
+		<div class="wp-block-archives field-group">
+			<label for="wp-block-archives-1" class="wp-block-archives__label">
+				<?php esc_html_e('Archives', 'plusmagi-post-archives'); ?>
+			</label>
+
+			<div class="select-wrapper">
+				<select id="wpblockarchives1" name="archive-dropdown" class="form-select"<?php echo $select_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+					<option value="" disabled selected><?php esc_html_e('Select Month', 'plusmagi-post-archives'); ?></option>
+					<?php $current_year = null; ?>
+					<?php foreach ($archives as $archive) : ?>
+						<?php if ((int) $archive->year !== $current_year) : ?>
+							<?php if ($current_year !== null) : ?></optgroup><?php endif; ?>
+							<optgroup label="<?php echo esc_attr($archive->year); ?>">
+							<?php $current_year = (int) $archive->year; ?>
+						<?php endif; ?>
+						<option value="<?php echo esc_url(get_month_link($archive->year, $archive->month)); ?>">
+							<?php echo esc_html(wp_date('F', mktime(0, 0, 0, $archive->month, 1, $archive->year))); ?>
+							(<?php echo esc_html($archive->post_count); ?>)
+						</option>
+					<?php endforeach; ?>
+					<?php if ($current_year !== null) : ?></optgroup><?php endif; ?>
+				</select>
+
+				<span class="select-arrow" aria-hidden="true">
+					<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<path d="M6 9l6 6 6-6" />
+					</svg>
+				</span>
+			</div>
+		</div>
+		<?php
+		return ob_get_clean();
+	}
 
 	/**
 	 * Return sanitized, unique meta keys allowed in meta search.
@@ -211,7 +208,7 @@ class Plusmagi_Site_Search
 	 */
 	private function get_searchable_meta_keys()
 	{
-		$meta_keys = apply_filters('plusmagi_site_search_meta_keys', $this->default_searchable_meta_keys);
+		$meta_keys = apply_filters('plusmagi_post_archives_meta_keys', $this->default_searchable_meta_keys);
 
 		if (!is_array($meta_keys)) {
 			return $this->default_searchable_meta_keys;
@@ -240,6 +237,7 @@ class Plusmagi_Site_Search
 		}
 
 		$placeholders = implode(', ', array_fill(0, count($meta_keys), '%s'));
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Placeholder count is generated from sanitized whitelist keys, values are still passed to prepare().
 		$prepared_values = $wpdb->prepare($placeholders, ...$meta_keys);
 
 		return " AND ({$wpdb->postmeta}.meta_key IN ({$prepared_values}))";
@@ -423,6 +421,7 @@ class Plusmagi_Site_Search
 			// We append an OR branch for meta_value before the trailing parentheses.
 			$like	 = '%' . $wpdb->esc_like($this->search_term) . '%';
 			$meta_key_condition = $this->build_meta_key_sql_condition();
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Meta key SQL is a prepared fragment generated from sanitized whitelist keys.
 			$meta_sql = $wpdb->prepare(" OR (({$wpdb->postmeta}.meta_value LIKE %s){$meta_key_condition}) ", $like);
 
 			$replacements = 0;
@@ -430,8 +429,6 @@ class Plusmagi_Site_Search
 
 			if ($replacements === 1 && is_string($updated_where)) {
 				$where = $updated_where;
-			} elseif (defined('WP_DEBUG') && WP_DEBUG) {
-				error_log('PlusMagi Site Search: skipping meta SQL extension because the expected WHERE shape was not found.');
 			}
 		}
 		return $where;
@@ -462,7 +459,7 @@ class Plusmagi_Site_Search
 /**
  * Begins execution of the plugin.
  */
-function plusmagi_site_search_load_plugin() {
-	Plusmagi_Site_Search::get_instance();
+function plusmagi_post_archives_load_plugin() {
+	Plusmagi_Post_Archives::get_instance();
 }
-add_action('plugins_loaded', 'plusmagi_site_search_load_plugin');
+add_action('plugins_loaded', 'plusmagi_post_archives_load_plugin');
